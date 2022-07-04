@@ -17,6 +17,49 @@ export const Form: React.FC = () => {
   const birthday = useInput({ empty: true });
   const message = useInput({ empty: true, minLength: 10, maxLength: 300 });
 
+  //Маска номера телефона
+  const prefixNumber = (str: string) => {
+    if (str === "7") {
+      return "7 (";
+    }
+    if (str === "8") {
+      return "8 (";
+    }
+    if (str === "9") {
+      return "7 (9";
+    }
+    return "7 (";
+  };
+
+  const validValue = phone.value.replace(/\D+/g, "");
+  let result;
+  if (phone.value.includes("+8") || phone.value[0] === "8") {
+    result = "";
+  } else {
+    result = "+";
+  }
+
+  for (let i = 0; i < validValue.length && i < 11; i++) {
+    switch (i) {
+      case 0:
+        result += prefixNumber(validValue[i]);
+        continue;
+      case 4:
+        result += ") ";
+        break;
+      case 7:
+        result += "-";
+        break;
+      case 9:
+        result += "-";
+        break;
+      default:
+        break;
+    }
+    result += validValue[i];
+  }
+  phone.value = result;
+
   //закидываем значения из inputs в объект data для отправки
   const data = {
     fullName: fullName.value,
