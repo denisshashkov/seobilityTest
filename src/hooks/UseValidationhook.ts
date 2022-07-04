@@ -10,6 +10,7 @@ export const useValidation = (value: string, validations: ValidationType) => {
     useState<boolean>(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [inputValid, setInputValid] = useState<boolean>(false);
+
   useEffect(() => {
     for (const validation in validations) {
       switch (validation) {
