@@ -1,138 +1,64 @@
-import React, { useState } from "react";
-import { sendRequest } from "../../api/api";
-import { useInput } from "../../hooks/UseInputHook";
+import React from "react";
+import { CommonType } from "../../types/types";
 import style from "./formStyle.module.scss";
 
-export const Form: React.FC = () => {
-  const [successRequest, setSuccessRequest] = useState<boolean>(false);
-  const [errorRequest, setErrorRequest] = useState<boolean>(false);
-  const fullName = useInput({
-    empty: true,
-    minLength: 3,
-    maxLength: 30,
-    wordsCount: 2,
-  });
-  const email = useInput({ empty: true, isEmail: false });
-  const phone = useInput({ empty: true });
-  const birthday = useInput({ empty: true });
-  const message = useInput({ empty: true, minLength: 10, maxLength: 300 });
+type PropsType = {
+  fullName: CommonType;
+  email: CommonType;
+  phone: CommonType;
+  birthday: CommonType;
+  message: CommonType;
+  successRequest: boolean;
+  errorRequest: boolean;
+  handleSubmit: (e: React.SyntheticEvent) => void;
+};
 
-  //Маска номера телефона
-  const prefixNumber = (str: string) => {
-    if (str === "7") {
-      return "7 (";
-    }
-    if (str === "8") {
-      return "8 (";
-    }
-    if (str === "9") {
-      return "7 (9";
-    }
-    return "7 (";
-  };
-
-  const validValue = phone.value.replace(/\D+/g, "");
-  let result;
-  if (phone.value.includes("+8") || phone.value[0] === "8") {
-    result = "";
-  } else {
-    result = "+";
-  }
-
-  for (let i = 0; i < validValue.length && i < 11; i++) {
-    switch (i) {
-      case 0:
-        result += prefixNumber(validValue[i]);
-        continue;
-      case 4:
-        result += ") ";
-        break;
-      case 7:
-        result += "-";
-        break;
-      case 9:
-        result += "-";
-        break;
-      default:
-        break;
-    }
-    result += validValue[i];
-  }
-  phone.value = result;
-
-  //закидываем значения из inputs в объект data для отправки
-  const data = {
-    fullName: fullName.value,
-    email: email.value,
-    phone: phone.value,
-    birthday: birthday.value,
-    message: message.value,
-  };
-  // функция сброса значений в inputs после отправки
-  const resetForm = () => {
-    fullName.resetInput();
-    email.resetInput();
-    phone.resetInput();
-    birthday.resetInput();
-    message.resetInput();
-  };
-
-  const handleSubmit = async (e: React.SyntheticEvent) => {
+export const Form: React.FC<PropsType> = (props) => {
+  const submitForm = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    await sendRequest(data)
-      //Выводим сообщение об успешной отправке
-      .then(() => setSuccessRequest(true))
-      //сброс значений в inputs
-      .then(() => resetForm())
-      //вывод сообщения об ошибке
-      .catch(() => setErrorRequest(true))
-      //зачищаем сообщения
-      .finally(() =>
-        setTimeout(() => {
-          setSuccessRequest(false);
-          setErrorRequest(false);
-        }, 3000)
-      );
+    props.handleSubmit(e);
   };
-
   return (
     <div className={style.form__wrapper}>
-      <form noValidate onSubmit={handleSubmit}>
+      <form noValidate onSubmit={submitForm}>
+        <h3>Seobility</h3>
         <div className={style.form__input}>
           <label>Имя Фамилия</label>
           <input
             name="fullName"
-            onChange={fullName.onChange}
-            onBlur={fullName.onBlur}
-            value={fullName.value.toUpperCase()}
+            onChange={props.fullName.onChange}
+            onBlur={props.fullName.onBlur}
+            value={props.fullName.value.toUpperCase()}
             placeholder="Введите имя и фамилию "
           />
-          {fullName.focused && fullName.empty && (
-            <span>{fullName.errorMessage}</span>
+          {props.fullName.focused && props.fullName.empty && (
+            <span>{props.fullName.errorMessage}</span>
           )}
-          {fullName.focused && fullName.minLengthError && (
-            <span>{fullName.errorMessage}</span>
+          {props.fullName.focused && props.fullName.minLengthError && (
+            <span>{props.fullName.errorMessage}</span>
           )}
-          {fullName.focused && fullName.maxLengthError && (
-            <span>{fullName.errorMessage}</span>
+          {props.fullName.focused && props.fullName.maxLengthError && (
+            <span>{props.fullName.errorMessage}</span>
           )}
-          {fullName.focused && fullName.maxWordsLengthError && (
-            <span>{fullName.errorMessage}</span>
+          {props.fullName.focused && props.fullName.maxWordsLengthError && (
+            <span>{props.fullName.errorMessage}</span>
           )}
         </div>
         <div className={style.form__input}>
           <label>E-mail</label>
           <input
             name="email"
-            onChange={email.onChange}
-            onBlur={email.onBlur}
-            value={email.value}
+            onChange={props.email.onChange}
+            onBlur={props.email.onBlur}
+            value={props.email.value}
             type="email"
             placeholder="Ваш email"
           />
-          {email.focused && email.empty && <span>{email.errorMessage}</span>}
-          {email.focused && email.emailError && (
-            <span>{email.errorMessage}</span>
+          {props.email.focused && props.email.empty && (
+            <span>{props.email.errorMessage}</span>
+          )}
+          {props.email.focused && props.email.emailError && (
+            <span>{props.email.errorMessage}</span>
           )}
         </div>
         <div className={style.form__input}>
@@ -140,58 +66,68 @@ export const Form: React.FC = () => {
           <input
             name="phone"
             type="tel"
-            onChange={phone.onChange}
-            onBlur={phone.onBlur}
-            value={phone.value}
+            onChange={props.phone.onChange}
+            onBlur={props.phone.onBlur}
+            value={props.phone.value}
             placeholder="Ваш номер телефона"
           />
-          {phone.focused && phone.empty && <span>{phone.errorMessage}</span>}
+          {props.phone.focused && props.phone.empty && (
+            <span>{props.phone.errorMessage}</span>
+          )}
         </div>
         <div className={style.form__input}>
           <label>Дата рождения</label>
           <input
             name="birthday"
-            onChange={birthday.onChange}
-            onBlur={birthday.onBlur}
-            value={birthday.value}
+            onChange={props.birthday.onChange}
+            onBlur={props.birthday.onBlur}
+            value={props.birthday.value}
             type="date"
           />
-          {birthday.focused && birthday.empty && (
-            <span>{birthday.errorMessage}</span>
+          {props.birthday.focused && props.birthday.empty && (
+            <span>{props.birthday.errorMessage}</span>
           )}
         </div>
         <div className={style.form__input}>
           <label>Сообщение</label>
           <input
             name="message"
-            onChange={message.onChange}
-            onBlur={message.onBlur}
-            value={message.value}
+            onChange={props.message.onChange}
+            onBlur={props.message.onBlur}
+            value={props.message.value}
             placeholder="Введите ваше сообщение"
           />
-          {message.focused && message.empty && (
-            <span>{message.errorMessage}</span>
+          {props.message.focused && props.message.empty && (
+            <span>{props.message.errorMessage}</span>
           )}
-          {message.focused && message.minLengthError && (
-            <span>{message.errorMessage}</span>
+          {props.message.focused && props.message.minLengthError && (
+            <span>{props.message.errorMessage}</span>
           )}
-          {message.focused && message.maxLengthError && (
-            <span>{message.errorMessage}</span>
+          {props.message.focused && props.message.maxLengthError && (
+            <span>{props.message.errorMessage}</span>
           )}
         </div>
         <button
           disabled={
-            !fullName.inputValid ||
-            !email.inputValid ||
-            !phone.inputValid ||
-            !birthday.inputValid ||
-            !message.inputValid
+            !props.fullName.inputValid ||
+            !props.email.inputValid ||
+            !props.phone.inputValid ||
+            !props.birthday.inputValid ||
+            !props.message.inputValid
           }
         >
           Отправить
         </button>
-        {successRequest && <div>Данные успешно отправленны</div>}
-        {errorRequest && <span>Упс какая-то ошибка </span>}
+        {props.successRequest && (
+          <div className={style.tooltip__success}>
+            <p>Данные успешно отправленны</p>
+          </div>
+        )}
+        {props.errorRequest && (
+          <div className={style.tooltip__error}>
+            <p>Упсс! Ошибка </p>
+          </div>
+        )}
       </form>
     </div>
   );
